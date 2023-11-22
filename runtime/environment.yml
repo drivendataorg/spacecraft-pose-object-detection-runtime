@@ -1,0 +1,11 @@
+name: condaenv
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11.6
+  - numpy
+  - pandas
+  - pip
+  - pip:
+    - loguru
+    - tqdm
