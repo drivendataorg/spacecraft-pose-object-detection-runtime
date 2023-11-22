@@ -1,0 +1,62 @@
+name: build
+
+on:
+  push:
+    branches: [main]
+    paths: ["runtime/**", ".github/workflows/build-containers.yml"]
+  pull_request:
+    paths: ["runtime/**", ".github/workflows/build-containers.yml"]
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  build:
+    name: Build, Test, and Publish Image
+    runs-on: ubuntu-latest
+    env:
+      LOGIN_SERVER: ${{ secrets.LOGIN_SERVER }}
+      IMAGE: spacecraft-pose-object-detection
+      SHA_TAG: ${{ github.sha }}
+      LATEST_TAG: latest
+      PUBLISH_IMAGE: ${{ secrets.PUBLISH_IMAGE }}
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Build Image
+        run: |
+          docker build runtime \
+            --tag $LOGIN_SERVER/$IMAGE:$SHA_TAG \
+            --tag $LOGIN_SERVER/$IMAGE:$LATEST_TAG
+
+      - name: Check image size
+        run: |
+          docker image list $LOGIN_SERVER/$IMAGE
+
+      - name: Tests packages in container
+        run: |
+          docker run $LOGIN_SERVER/$IMAGE:$SHA_TAG pytest tests/test_packages.py
+
+      - name: Log into Azure
+        if: ${{ github.ref == 'refs/heads/main' && env.PUBLISH_IMAGE == '1' }}
+        uses: azure/login@v1
+        with:
+          client-id: ${{secrets.AZURE_CLIENT_ID}}
+          tenant-id: ${{secrets.AZURE_TENANT_ID}}
+          subscription-id: ${{secrets.AZURE_SUBSCRIPTION_ID}}
+
+      - name: Log into ACR with Docker
+        if: ${{ github.ref == 'refs/heads/main' && env.PUBLISH_IMAGE == '1' }}
+        uses: azure/docker-login@v1
+        with:
+          login-server: ${{ env.LOGIN_SERVER }}
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+
+      - name: Push image to ACR
+        if: ${{ github.ref == 'refs/heads/main' && env.PUBLISH_IMAGE == '1' }}
+        run: |
+          docker push $LOGIN_SERVER/$IMAGE --all-tags
