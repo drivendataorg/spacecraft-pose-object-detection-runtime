@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-SUBMISSION_PATH = Path("/code_execution/submission/submission.csv")
+SUBMISSION_PATH = Path("/code_execution/workdir/submission.csv")
 CHECK_SUBMISSION = os.environ.get("CHECK_SUBMISSION", "false") == "true"
 
 

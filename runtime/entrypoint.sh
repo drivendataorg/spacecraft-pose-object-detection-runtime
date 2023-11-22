@@ -14,14 +14,17 @@ main () {
     fi
 
     echo Unpacking submission
-    unzip ./submission/submission.zip -d ./src
+    unzip ./submission/submission.zip -d ./workdir
 
     echo Printing submission contents
-    find src
+    find workdir
 
-    LOGURU_LEVEL=INFO sh main.sh
+    pushd workdir
+    sh main.sh
+    popd
 
-    pytest tests/test_submission
+    # test the submission
+    pytest tests/test_submission.py
 }
 
 main |& tee "/code_execution/submission/log.txt"

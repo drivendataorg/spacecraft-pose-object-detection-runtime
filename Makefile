@@ -95,8 +95,8 @@ endif
 		${TTY_ARGS} \
 		${NETWORK_ARGS} \
 		--network none \
-		--mount type=bind,source="$(shell pwd)"/data,target=/data,readonly \
-		--mount type=bind,source="$(shell pwd)"/submission,target=/submission \
+		--mount type=bind,source="$(shell pwd)"/data,target=/code_execution/data,readonly \
+		--mount type=bind,source="$(shell pwd)"/submission,target=/code_execution/submission \
 		--shm-size 8g \
 		--name ${CONTAINER_NAME} \
 		--rm \
