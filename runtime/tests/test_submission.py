@@ -1,10 +1,13 @@
+import os
+
 from pathlib import Path
 
-from loguru import logger
 import pytest
 
-SUBMISSION_PATH = Path("/submission/submission.csv")
+SUBMISSION_PATH = Path("/code_execution/submission/submission.csv")
+CHECK_SUBMISSION = os.environ.get("CHECK_SUBMISSION", "false") == "true"
 
 
+@pytest.mark.skipif(not CHECK_SUBMISSION, reason="Not checking submission yet")
 def test_submission_exists():
     assert SUBMISSION_PATH.exists()

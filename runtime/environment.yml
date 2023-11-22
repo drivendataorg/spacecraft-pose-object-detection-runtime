@@ -1,11 +1,23 @@
-name: condaenv
+name: spacecraftpose
 channels:
   - conda-forge
 dependencies:
-  - python=3.11.6
-  - numpy
-  - pandas
-  - pip
-  - pip:
-    - loguru
-    - tqdm
+  - keras=2.13
+  - lightgbm=4.1
+  - loguru=0.7
+  - geopandas=0.14
+  - numba=0.58
+  - numpy=1.26
+  - pandas=2.1
+  - pip=23.3
+  - pydantic=1.10
+  - pytest=7.4
+  - python=3.10
+  - pytorch=1.*=cpu*
+  - pytorch-lightning
+  - scikit-learn=1.3
+  - scipy=1.11
+  - statsmodels=0.14
+  - tensorflow=2.13.*=cpu*
+  - tqdm=4.66
+  - xgboost=1.7.*=cpu*

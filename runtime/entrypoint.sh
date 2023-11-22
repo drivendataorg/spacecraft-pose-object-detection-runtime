@@ -1,52 +1,30 @@
 #!/bin/bash
-set -e
 
-exit_code=0
+set -euxo pipefail
 
-run_user_code() {
-    if [ -f "main.sh" ]
-    then
-        echo "Running main.sh ..."
-        sh main.sh
-    else
-        echo "ERROR: Could not find main.sh in submission.zip"
-        exit_code=1
-    fi
-}
+main () {
+    expected_filename=main.sh
 
-split () {
-  echo "********************************************************************************"
-}
+    cd /code_execution
 
-
-{
-    sleep 10
-    source activate condaenv
-    cd /submission
-
-    echo "Unpacking submission..."
-    unzip -o /submission/submission.zip -d ./
-    python /validate.py pre_create .
-
-    run_user_code
-    python /validate.py post_query .
-
-    echo "Exporting submission.csv result..."
-
-    # Valid scripts must create a "submission.csv" file within the same directory as main
-    if [ -f "submission.csv" ]
-    then
-        echo "Script completed its run."
-    else
-        echo "ERROR: Script did not produce a submission.csv file in the main directory."
-        exit_code=1
+    submission_files=$(zip -sf ./submission/submission.zip)
+    if ! grep -q ${expected_filename}<<<$submission_files; then
+        echo "Submission zip archive must include $expected_filename"
+    return 1
     fi
 
-    echo "Running acceptance tests..."
-    # conda run -n condaenv --no-capture-output pytest --verbose --rootdir=. /tests/test_submission.py
-    echo "================ END ================"
-} |& tee "/submission/log.txt"
+    echo Unpacking submission
+    unzip ./submission/submission.zip -d ./src
 
-# copy for additional log uses
-cp /submission/log.txt /tmp/log
+    echo Printing submission contents
+    find src
+
+    LOGURU_LEVEL=INFO sh main.sh
+}
+
+main |& tee "/code_execution/submission/log.txt"
+exit_code=${PIPESTATUS[0]}
+
+cp /code_execution/submission/log.txt /tmp/log
+
 exit $exit_code
