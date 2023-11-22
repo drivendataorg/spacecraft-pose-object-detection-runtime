@@ -26,6 +26,6 @@ COPY entrypoint.sh /entrypoint.sh
 
 WORKDIR /code_execution
 USER ${MAMBA_USER}
-COPY runtime/tests /code_execution/tests
+COPY tests /code_execution/tests
 
 CMD ["bash", "/entrypoint.sh"]
