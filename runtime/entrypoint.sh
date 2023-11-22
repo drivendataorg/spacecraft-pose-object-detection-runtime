@@ -20,6 +20,8 @@ main () {
     find src
 
     LOGURU_LEVEL=INFO sh main.sh
+
+    pytest tests/test_submission
 }
 
 main |& tee "/code_execution/submission/log.txt"
