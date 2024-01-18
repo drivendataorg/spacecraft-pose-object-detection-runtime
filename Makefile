@@ -1,4 +1,4 @@
-.PHONY: build pull pack-benchmark pack-submission repack-submission repack-example test-submission
+.PHONY: build build-full pull pack-benchmark pack-submission repack-submission repack-example test-submission
 
 # ================================================================================================
 # Settings
@@ -41,6 +41,9 @@ _submission_write_perms:
 ## Builds the container locally
 build:
 	docker build -t ${LOCAL_IMAGE} runtime
+
+build-full:
+	docker build --no-cache -t ${LOCAL_IMAGE} runtime
 
 ## Ensures that your locally built container can import all the Python packages successfully when it runs
 test-container: build _submission_write_perms
