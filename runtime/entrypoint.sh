@@ -24,7 +24,7 @@ main () {
     popd
 
     # test the submission
-    pytest tests/test_submission.py
+    pytest --no-header -vv tests/test_submission.py
 }
 
 main |& tee "/code_execution/submission/log.txt"

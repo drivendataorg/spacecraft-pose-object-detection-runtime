@@ -10,6 +10,7 @@ packages = [
     "sklearn",
     "tensorflow",
     "torch",
+    "cv2",
 ]
 
 

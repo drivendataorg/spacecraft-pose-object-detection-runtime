@@ -3,3 +3,5 @@ libxml2
 tzdata
 wget
 zip
+parallel
+libgl1-mesa-glx
