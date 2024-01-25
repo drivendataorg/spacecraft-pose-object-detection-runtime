@@ -1,44 +1,64 @@
-import sys
-import time
-from datetime import datetime
 from pathlib import Path
 
+import click
 import cv2
+import numpy.typing as npt
 import pandas as pd
+from loguru import logger
 
 COLUMN_NAMES = ["image_id", "xmin", "ymin", "xmax", "ymax"]
 
 
-def detect_object_in_image(img_path: str) -> dict:
-    image_id = Path(img_path).stem
-    # load the image
-    _img = cv2.imread(img_path)
+def detect_object_in_image(img_arr: npt.ArrayLike) -> pd.Series:
     # TODO: actually make predictions! we don't actually do anything useful here!
-    values = {
-        "image_id": image_id,
-        "xmin": 10,
-        "ymin": 10,
-        "xmax": 20,
-        "ymax": 20,
-    }
+    values = pd.Series(
+        {
+            "xmin": 10,
+            "ymin": 10,
+            "xmax": 20,
+            "ymax": 20,
+        }
+    )
     return values
 
 
+@click.command()
+@click.argument(
+    "data_dir",
+    type=click.Path(exists=True, file_okay=False, dir_okay=True),
+)
+@click.argument(
+    "output_path",
+    type=click.Path(exists=False),
+)
+def main(data_dir, output_path):
+    data_dir = Path(data_dir).resolve()
+    output_path = Path(output_path).resolve()
+    assert (
+        output_path.parent.exists()
+    ), f"Expected output directory {output_path.parent} does not exist"
+
+    logger.info(f"using data dir: {data_dir}")
+    assert data_dir.exists(), f"Data directory does not exist: {data_dir}"
+
+    # read in the submission format
+    submission_format_path = data_dir / "submission_format.csv"
+    submission_format_df = pd.read_csv(submission_format_path, index_col="image_id")
+
+    # copy over the submission format so we can overwrite placeholders with predictions
+    submission_df = submission_format_df.copy()
+
+    image_dir = data_dir / "images"
+    for image_id in submission_format_df.index.values:
+        image_path = image_dir / f"{image_id}.png"
+        assert image_path.exists(), f"Expected image not found: {image_path}"
+        # load the image
+        img_arr = cv2.imread(str(image_path))
+        box_series = detect_object_in_image(img_arr)
+        submission_df.loc[image_id] = box_series
+
+    submission_df.to_csv(output_path, index=True)
+
+
 if __name__ == "__main__":
-    output_dir = Path(sys.argv[1])
-    output_path = output_dir / f"{datetime.utcnow().isoformat()}.csv"
-
-    # here is where we would load an expensive model, but it only happens once
-    # for each chunk of image paths we're going to churn through
-    time.sleep(1)
-
-    results = []
-    img_paths = [img_path.strip() for img_path in sys.stdin]
-    print(
-        f"making {len(img_paths):,} predictions for {img_paths[0]} to {img_paths[-1]}"
-    )
-    for img_path in img_paths:
-        result = detect_object_in_image(img_path)
-        results.append(result)
-    df = pd.DataFrame.from_records(results, columns=COLUMN_NAMES)
-    df.to_csv(output_path, index=False)
+    main()
