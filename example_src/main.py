@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 import click
@@ -5,6 +6,7 @@ import cv2
 import numpy.typing as npt
 import pandas as pd
 from loguru import logger
+from tqdm import tqdm
 
 COLUMN_NAMES = ["image_id", "xmin", "ymin", "xmax", "ymax"]
 
@@ -49,13 +51,25 @@ def main(data_dir, output_path):
     submission_df = submission_format_df.copy()
 
     image_dir = data_dir / "images"
-    for image_id in submission_format_df.index.values:
-        image_path = image_dir / f"{image_id}.png"
-        assert image_path.exists(), f"Expected image not found: {image_path}"
-        # load the image
-        img_arr = cv2.imread(str(image_path))
-        box_series = detect_object_in_image(img_arr)
-        submission_df.loc[image_id] = box_series
+
+    # add a progress bar using tqdm without spamming the log
+    update_iters = min(100, int(submission_format_df.shape[0] / 10))
+    with open(os.devnull, "w") as devnull:
+        progress_bar = tqdm(
+            enumerate(submission_format_df.index.values),
+            total=submission_format_df.shape[0],
+            miniters=update_iters,
+            file=devnull,
+        )
+        for i, image_id in progress_bar:
+            if (i % update_iters) == 0:
+                logger.info(str(progress_bar))
+            image_path = image_dir / f"{image_id}.png"
+            assert image_path.exists(), f"Expected image not found: {image_path}"
+            # load the image
+            img_arr = cv2.imread(str(image_path))
+            box_series = detect_object_in_image(img_arr)
+            submission_df.loc[image_id] = box_series
 
     submission_df.to_csv(output_path, index=True)
 
