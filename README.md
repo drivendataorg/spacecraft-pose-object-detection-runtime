@@ -24,15 +24,14 @@ This repository has three primary uses for competitors:
 ### [Quickstart](#quickstart)
  - [Prerequisites](#prerequisites)
  - [Download the data](#download-the-data)
- - [Run Make commands](#run-make-commands)
+ - [The quickstart example](#the-quickstart-example)
+ - [Testing the submission](#testing-the-submission)
 ### [Developing your own submission](#developing-your-own-submission)
  - [Steps](#steps)
  - [Logging](#logging)
- - [Scoring your submission](#scoring-your-submission)
 ### [Additional information](#additional-information)
  - [Runtime network access](#runtime-network-access)
- - [CPU and GPU](#cpu-and-gpu)
- - [Make commands](#make-commands)
+ - [Downloading pre-trained weights](#downloading-pre-trained-weights)
  - [Updating runtime packages](#updating-runtime-packages)
 
 
