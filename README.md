@@ -9,11 +9,15 @@ This repository contains the definition of the environment where your code submi
 
 This repository has three primary uses for competitors:
 
-1. 💡 **Working example solutions** to help you get started with the challenge: 
-    - **[Quickstart example](https://github.com/drivendataorg/spacecraft-pose-object-detection-runtime/tree/main/example_src):** A minimal example that runs succesfully in the runtime environment and outputs a properly formatted submission CSV. This will generate arbitrary predictions, so unfortunately you won't win the competition with this example, but you can use it as a guide for bringing in your own work and generating a real submission.
-    - **[Benchmark example](https://github.com/drivendataorg/spacecraft-pose-object-detection-runtime/tree/main/benchmark):**  A modestly more advanced example that uses a YOLO pretrained model to generate bounding box submissions. You won't win the competition with this example either, but it's a step in the right direction. 
-2. 🔧 **Test your submission**: Test your submission with a locally running version of the container to discover errors before submitting to the competition site.
-3. 📦 **Request new packages in the official runtime**: All packages required by your submission must be pre-installed, and your submission will not have internet access. If you want to use a package that is not in the runtime environment, make a pull request to this repository.
+💡 **Working example solutions** to help you get started with the challenge: 
+- **[Quickstart example](https://github.com/drivendataorg/spacecraft-pose-object-detection-runtime/tree/main/example_src):** A minimal example that runs succesfully in the runtime environment and outputs a properly formatted submission CSV. This will generate arbitrary predictions, so unfortunately you won't win the competition with this example, but you can use it as a guide for bringing in your own work and generating a real submission.
+- **[Benchmark example](https://github.com/drivendataorg/spacecraft-pose-object-detection-runtime/tree/main/benchmark):**  A modestly more advanced example that uses a YOLO pretrained model to generate bounding box predictions. You won't win the competition with this example either, but it's a step in the right direction.
+
+🔧 **Test your submission**: Test your submission with a locally running version of the container to discover errors before submitting to the competition site. Generally, this should save you time and help you iterate faster.
+
+
+📦 **Request new packages in the official runtime**: All packages required by your submission must be pre-installed, and your submission will not have internet access. If you want to use a package that is not in the runtime environment, make a pull request to this repository.
+
 
  ----
 
@@ -36,14 +40,14 @@ This repository has three primary uses for competitors:
 
 ## Quickstart
 
-This section guides you through the steps to generate a simple but valid submission for the competition.
+This section guides you through the steps to test a simple but valid submission for the competition.
 
 ### Prerequisites
 
 First, make sure you have the prerequisites installed.
 
  - A clone or fork of this repository
- - Enough free space on your machine for the spacecraft images dataset and Docker container images. 
+ - Enough free space on your machine for the spacecraft images dataset (at least 10 GB) and Docker container images (5 GB)
  - [Docker](https://docs.docker.com/get-docker/)
  - [GNU make](https://www.gnu.org/software/make/) (optional, but useful for running commands in the Makefile)
 
@@ -58,9 +62,13 @@ Once everything is downloaded and in the right location, it should look somethin
 ```
 data/                         # Runtime data directory
 ├── images/                   # Directory containing image files
+│      │
+│      ├── a0a0d73d0e9a4b16a23bc210a264fd3f.png
+│      ├── a0a6efb87e1fcd0c158ba35ced823250.png
 │      ├── a0a0d73d0e9a4b16a23bc210a264fd3f.png
 │      ├── a0a6efb87e1fcd0c158ba35ced823250.png
 │      └── ...
+│
 ├── submission_format.csv     # CSV file showing how submission should be formatted
 └── train_labels.csv          # CSV file with ground truth data
 ```
@@ -71,7 +79,7 @@ Later in this guide, when we launch a Docker container from your computer (or th
 
 A working example submission is provided in this project's [`example_src/`](https://github.com/drivendataorg/spacecraft-pose-object-detection-runtime/tree/main/example_src) to help you get started. 
 
-In that directory, you'll see the `main.sh` file that you're required to include in your submission. Below are the full contents of that file -- for this simple example, this script simply sets a couple path variables and runs a python script called `main.py`. You are welcome to make the `main.sh` behavior more complex as you develop your submission and there's no requirement that you use it to call a python script (we just think this will be a fairly common use pattern).
+In that directory, you'll see the [`main.sh`](https://github.com/drivendataorg/spacecraft-pose-object-detection-runtime/blob/main/example_src/main.sh) file that you're required to include in your submission. Below are the full contents of that file -- for this simple example, this script simply sets a couple path variables and runs a python script called `main.py`. You are welcome to make the `main.sh` behavior more complex as you develop your submission and there's no requirement that you use it to call a python script (we just think this will be a fairly common use pattern).
 
 ```bash
 #!/usr/bin/env bash
@@ -79,22 +87,22 @@ In that directory, you'll see the `main.sh` file that you're required to include
 DATA_DIR=../data
 SUBMISSION_PATH=/code_execution/submission/submission.csv
 
-# call our script (main.py in this case) and tell it where the data is and
+# call our script (main.py in this case) and tell it where the data is
 python main.py $DATA_DIR $SUBMISSION_PATH
 ```
 
-The `main.py` script is fairly straightforward as well. For this quickstart example, the script doesn't even try to generate reasonable predictions. It just returns an arbitrary bounding box for each image in the dataset. That won't generate a very good score, but it will still be a valid submissiong, which is what we're interested in for starters.
+The [`main.py`](https://github.com/drivendataorg/spacecraft-pose-object-detection-runtime/blob/main/example_src/main.py) script is fairly straightforward as well. For this quickstart example, the script doesn't even try to generate reasonable predictions. It just returns an arbitrary bounding box for each image in the dataset. That won't generate a very good score, but it will still be a valid submission, which is what we're interested in for starters.
 
 ### Testing the submission
 
 The primary purpose of this runtime repository is to allow you to easily test your submission before making a submission to the DrivenData platform. 
 
-Your submission is going to run inside a Docker container on our code execution platform. This repository contains the definition for that Docker container ((here)[https://github.com/drivendataorg/spacecraft-pose-object-detection-runtime/tree/main/runtime]), as well as a few commands you can run to easily download the Docker image and test your submission. Below we walk through those commands.
+Your submission is going to run inside a Docker container on our code execution platform. This repository contains the definition for that (Docker container)[https://github.com/drivendataorg/spacecraft-pose-object-detection-runtime/tree/main/runtime], as well as a few commands you can run to easily download the Docker image and test your submission. Below we walk through those commands.
 
 First, make sure Docker is running and then run the following commands in your terminal:
 
-1. **`make pull`** pulls the latest official Docker image from the container registry ([Azure](https://azure.microsoft.com/en-us/services/container-registry/)). You'll need an internet connection for this.
-2. **`make pack-example`** zips the contents of the `example_src` directory and saves it as `submission/submission.zip`. This is the file containing your code that you will upload to the DrivenData competition site for code execution. But first we'll test that everything looks good locally (see next step).
+1. **`make pull`** downloads the latest official Docker image from the container registry ([Azure](https://azure.microsoft.com/en-us/services/container-registry/)). You'll need an internet connection for this.
+2. **`make pack-example`** zips the contents of the `example_src` directory and saves it as `submission/submission.zip`. This is the file that you will upload to the DrivenData competition site for code execution. But first we'll test that everything looks good locally.
 3. **`make test-submission`** will do a test run of your submission, simulating what happens during actual code execution. This command runs the Docker container with the requisite host directories mounted, and executes `main.sh` to produce a CSV file with your image rankings at `submission/submission.csv`.
 
 ```sh
@@ -136,17 +144,17 @@ Let's walk through what you'll need to do, step-by-step. The overall process her
     ```
 
 4. ⚙️ **Save all of your submission files, including the required `main.sh` script, in the `submission_src` folder of the runtime repository.** This is where the real work happens.
-   * You are free to modify the `main.sh` script we've provided. Just make sure that you adhere to the competition rules and you still produce a `submission.csv` in the correct format.
-   * Also keep in mind that the runtime already contains a number of packages that might be useful for you ([environment.yml](https://github.com/drivendataorg/spacecraft-pose-object-detection-runtime/blob/main/runtime/environment.yml) . If there are other packages you'd like added, see the section below on [updating runtime packages](#updating-runtime-packages).
+   * You are free to modify the `main.sh` scripts we've provided as examples. Just make sure that you adhere to the competition rules and you still produce a `submission.csv` in the correct format.
+   * Also keep in mind that the runtime already contains a number of packages that might be useful for you (see: [environment.yml](https://github.com/drivendataorg/spacecraft-pose-object-detection-runtime/blob/main/runtime/environment.yml)). If there are other packages you'd like added, see the section below on [updating runtime packages](#updating-runtime-packages).
    * Finally, make sure any model weights or other files you need are also saved in `submission_src`.
 
-5. **Create a `submission/submission.zip` file containing your code and model assets:**
+5. **Create a `submission/submission.zip` file containing your code and model assets in `submission_src`:**
 
     ```bash
     $ make pack-submission
     ```
 
-6. **Test your submission by launching an instance of the competition Docker image, which will replicate the same inference process that takes place in the official code execution runtime.** This will mount the requisite host directories on the Docker container, unzip `submission/submission.zip` into the root directory of the container, and then execute `main.sh` to produce a CSV file with your predictions at `submission/submission.csv`.
+6. **Test your submission.** The command below will launch an instance of the competition Docker image, replicating the same inference process that takes place in the official code execution runtime. This will mount the requisite host directories on the Docker container, unzip `submission/submission.zip` into the root directory of the container, and then execute `main.sh` to produce a CSV file with your predictions at `submission/submission.csv`.
 
    ```
    $ make test-submission
