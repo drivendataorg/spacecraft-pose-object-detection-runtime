@@ -72,7 +72,7 @@ data/                         # Runtime data directory
 └── train_labels.csv          # CSV file with ground truth data
 ```
 
-Later in this guide, when we launch a Docker container from your computer (or the "host" machine), the `data` directory on your host machine will be mounted as a read-only directory in the container as `code_execution/data`. In the runtime, your code will then be able to access all the competition data at `code_execution/data`.
+Later in this guide, when we launch a Docker container from your computer (or the "host" machine), the `data` directory on your host machine will be mounted as a read-only directory in the container as `/code_execution/data`. In the runtime, your code will then be able to access all the competition data at `/code_execution/data`, which will by default look to your script like `./data` since your script will be invoked with `/code_execution` as the working directory.
 
 ### The quickstart example
 
@@ -83,10 +83,10 @@ In that directory, you'll see the [`main.sh`](https://github.com/drivendataorg/s
 ```bash
 #!/usr/bin/env bash
 
-DATA_DIR=../data
+DATA_DIR=/code_execution/data
 SUBMISSION_PATH=/code_execution/submission/submission.csv
 
-# call our script (main.py in this case) and tell it where the data is
+# call our script (main.py in this case) and tell it where the data and submission live
 python main.py $DATA_DIR $SUBMISSION_PATH
 ```
 
@@ -101,12 +101,13 @@ Your submission is going to run inside a Docker container on our code execution 
 First, make sure Docker is running and then run the following commands in your terminal:
 
 1. **`make pull`** downloads the latest official Docker image from the container registry ([Azure](https://azure.microsoft.com/en-us/services/container-registry/)). You'll need an internet connection for this.
-2. **`make pack-example`** zips the contents of the `example_src` directory and saves it as `submission/submission.zip`. This is the file that you will upload to the DrivenData competition site for code execution. But first we'll test that everything looks good locally.
+2. **`make pack-example`** zips the contents of the `example_src` directory and saves it as `submission/submission.zip`. This is the file that you will upload to the DrivenData competition site for code execution. But first we'll test that everything looks good locally in step #3. 
+   * Note: When running this again in the future, you may need to first run `make clean` before you re-pack the example for submission, both because it won't rerun by default if the submission file already exists, and also because sometimes running with Docker before may have created files in the mounted submission directory with different permissions.
 3. **`make test-submission`** will do a test run of your submission, simulating what happens during actual code execution. This command runs the Docker container with the requisite host directories mounted, and executes `main.sh` to produce a CSV file with your image rankings at `submission/submission.csv`.
 
 ```sh
 make pull
-make pack-example
+make clean && make pack-example
 make test-submission
 ```
 
@@ -160,12 +161,12 @@ Let's walk through what you'll need to do, step-by-step. The overall process her
    ```
 
 
-> ⚠️ **Remember** that for local testing purposes, the `code_execution/data` directory is just a mounted version of what you have saved locally in this project's `data` directory. So you will just be using the publicly available training files for local testing. In the official code execution environment, `code_execution/data` will contain the _actual test data_, which no participants have access to, and this is what will be used to compute your score for the leaderboard.
+> ⚠️ **Remember** that for local testing purposes, the `/code_execution/data` directory is just a mounted version of what you have saved locally in this project's `data` directory. So you will just be using the publicly available training files for local testing. In the official code execution environment, `/code_execution/data` will contain the _actual test data_, which no participants have access to, and this is what will be used to compute your score for the leaderboard.
 
 
 ### Logging
 
-When you run `make test-submission` the logs will be printed to the terminal and written out to `submission/log.txt`. If you run into errors, use the `log.txt` to determine what changes you need to make for your code to execute successfully.
+When you run `make test-submission` the logs will be printed to the terminal and written out to `submission/log.txt`. If you run into errors, use the `log.txt` to determine what changes you need to make for your code to execute successfully. This same log will be kept when you make a submission on the platform, which you can access through the user interface. Note: try to be judicious about what you keep in the log - if the log is overly chatty it may get truncated when you view it on the platform.
 
 
 ---
