@@ -5,6 +5,11 @@ set -euxo pipefail
 main () {
     cd /code_execution
 
+    if curl --connect-timeout 10 --max-time 12 www.example.com ; then
+        echo "Unexpected network connection found"
+        return 1
+    fi
+
     data_directory=/code_execution/data
     format_filename=${data_directory}/submission_format.csv
     for ((i=0; i<=5; i++))

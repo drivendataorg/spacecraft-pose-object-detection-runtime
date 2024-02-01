@@ -18,6 +18,8 @@ TTY_ARGS = -it
 endif
 
 # option to block or allow internet access from the submission Docker container
+# read BLOCK_INTERNET from environment variable if exists or default to "true"
+BLOCK_INTERNET ?= true
 ifeq (true, ${BLOCK_INTERNET})
 NETWORK_ARGS = --network none
 endif
@@ -97,9 +99,7 @@ ifeq (,$(wildcard ./submission/submission.zip))
 	  If you want to use the benchmark, you can run `make pack-benchmark` first)
 endif
 	docker run \
-		${TTY_ARGS} \
-		${NETWORK_ARGS} \
-		--network none \
+		${TTY_ARGS} ${NETWORK_ARGS} \
 		--mount type=bind,source="$(shell pwd)"/data,target=/code_execution/data,readonly \
 		--mount type=bind,source="$(shell pwd)"/submission,target=/code_execution/submission \
 		--shm-size 8g \
