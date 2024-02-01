@@ -5,7 +5,7 @@ set -euxo pipefail
 main () {
     cd /code_execution
 
-    if curl --connect-timeout 10 --max-time 12 www.example.com ; then
+    if curl --silent --connect-timeout 10 --max-time 12 www.example.com ; then
         echo "Unexpected network connection found"
         return 1
     fi
@@ -15,7 +15,7 @@ main () {
     for ((i=0; i<=5; i++))
     do
       t=$((i * 5))
-      if [ -f ${data_filename} ]; then
+      if [ -f ${format_filename} ]; then
           echo "found ${format_filename} after $t seconds; data is mounted"
           break
       else
