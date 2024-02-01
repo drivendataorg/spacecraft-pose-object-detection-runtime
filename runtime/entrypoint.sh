@@ -3,10 +3,27 @@
 set -euxo pipefail
 
 main () {
-    expected_filename=main.sh
-
     cd /code_execution
 
+    data_directory=/code_execution/data
+    format_filename=${data_directory}/submission_format.csv
+    for ((i=0; i<=5; i++))
+    do
+      t=$((i * 5))
+      if [ -f ${data_filename} ]; then
+          echo "found ${format_filename} after $t seconds; data is mounted"
+          break
+      else
+          echo "file ${format_filename} not found after $t seconds, sleeping for 5s ($((i+1)) of 6) to await..."
+          sleep 5
+      fi
+    done
+    if [ ! -f ${format_filename} ]; then
+      echo "never found ${format_filename}, data is not mounted; exiting"
+      return 1
+    fi
+
+    expected_filename=main.sh
     submission_files=$(zip -sf ./submission/submission.zip)
     if ! grep -q ${expected_filename}<<<$submission_files; then
         echo "Submission zip archive must include $expected_filename"
