@@ -27,6 +27,8 @@ def test_submission_matches_submission_format():
 
     for col in submission.columns:
         assert submission[col].dtype == fmt[col].dtype, f"dtype for columns not equal"
+        assert submission[col].notnull().all(), "Missing values found in submission"
+        assert submission[col].isfinite().all(), "Non-finite values found in submission"
 
     assert (submission["xmax"] <= MAX_WIDTH).all(), f"not all values of xmax are ≤ {MAX_WIDTH}"
     assert (submission["ymax"] <= MAX_HEIGHT).all(), f"not all values of ymax are ≤ {MAX_HEIGHT}"
