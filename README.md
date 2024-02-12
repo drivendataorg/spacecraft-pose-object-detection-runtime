@@ -191,13 +191,13 @@ To submit a pull request for a new package:
 
 1. Fork this repository.
 
-2. Edit the [conda](https://docs.conda.io/en/latest/) environment YAML files, `runtime/environment-cpu.yml` and `runtime/environment-gpu.yml`. There are two ways to add a requirement:
+2. Edit the [conda](https://docs.conda.io/en/latest/) environment YAML file, `runtime/environment.yml`. There are two ways to add a requirement:
     - Add an entry to the `dependencies` section. This installs from a conda channel using `conda install`. Conda performs robust dependency resolution with other packages in the `dependencies` section, so we can avoid package version conflicts.
     - Add an entry to the `pip` section. This installs from PyPI using `pip`, and is an option for packages that are not available in a conda channel.
 
     For both methods be sure to include a version, e.g., `numpy==1.20.3`. This ensures that all environments will be the same.
 
-3. Locally test that the Docker image builds successfully for CPU and GPU images:
+3. Locally test that the Docker image builds successfully:
 
     ```sh
     make build
