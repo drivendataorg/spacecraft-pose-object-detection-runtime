@@ -43,40 +43,36 @@ def centered_box(img, scale=0.1):
     type=click.Path(exists=False),
 )
 def main(data_dir, output_path):
+    # locate key files and locations
     data_dir = Path(data_dir).resolve()
     output_path = Path(output_path).resolve()
-    assert output_path.parent.exists(), f"Expected output directory {output_path.parent} does not exist"
+    submission_format_path = data_dir / "submission_format.csv"
+    images_dir = data_dir / "images"
 
-    logger.info(f"using data dir: {data_dir}")
     assert data_dir.exists(), f"Data directory does not exist: {data_dir}"
+    assert output_path.parent.exists(), f"Expected output directory {output_path.parent} does not exist"
+    assert submission_format_path.exists(), f"Expected submission format file {submission_format_path} does not exist"
+    assert images_dir.exists(), f"Expected images dir {images_dir} does not exist"
+    logger.info(f"using data dir: {data_dir}")
 
-    # # read in the submission format
-    # submission_format_path = data_dir / "submission_format.csv"
-    # submission_format_df = pd.read_csv(submission_format_path)
-    #
-    # # copy over the submission format so we can overwrite placeholders with predictions
-    # submission_df = submission_format_df.copy()
-
-    image_dir = data_dir / "images"
-
-    model = YOLO('yolov8n.pt')  # load pretrained model
-
-    img_paths = list(image_dir.glob("*.png"))
-    predictions = {}
-
-    for img_path in tqdm(img_paths, total=len(img_paths)):
+    # copy the submission format file; we'll use this as template and overwrite placeholders with our own predictions
+    submission_format_df = pd.read_csv(submission_format_path, index_col="image_id")
+    submission_df = submission_format_df.copy()
+    # load pretrained model we included in our submission.zip
+    model = YOLO('yolov8n.pt')
+    # generate predictions for each image
+    for image_id in tqdm(submission_df.index, total=len(submission_df)):
         # load the image
-        img = cv2.imread(str(img_path))
-        # got yolo result
+        img = cv2.imread(str(images_dir / f"{image_id}.png"))
+        # get yolo result
         result = model(img, verbose=False)[0]
         # get bbox coordinates if they exist, otherwise just get a generic box in center of an image
         bbox = result.boxes.xyxy[0].tolist() if len(result.boxes) > 0 else centered_box(img)
+        # convert bbox values to integers
+        bbox = [int(x) for x in bbox]
         # store the result
-        predictions[img_path.stem] = bbox
-
-    submission_df = pd.DataFrame.from_dict(predictions, orient="index")
-    submission_df.columns = ["xmin", "ymin", "xmax", "ymax"]
-
+        submission_df.loc[image_id] = bbox
+    # write the submission to the submission output path
     submission_df.to_csv(output_path, index=True)
 
 
