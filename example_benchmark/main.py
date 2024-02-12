@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 import click
@@ -60,18 +61,29 @@ def main(data_dir, output_path):
     submission_df = submission_format_df.copy()
     # load pretrained model we included in our submission.zip
     model = YOLO('yolov8n.pt')
-    # generate predictions for each image
-    for image_id in tqdm(submission_df.index, total=len(submission_df)):
-        # load the image
-        img = cv2.imread(str(images_dir / f"{image_id}.png"))
-        # get yolo result
-        result = model(img, verbose=False)[0]
-        # get bbox coordinates if they exist, otherwise just get a generic box in center of an image
-        bbox = result.boxes.xyxy[0].tolist() if len(result.boxes) > 0 else centered_box(img)
-        # convert bbox values to integers
-        bbox = [int(x) for x in bbox]
-        # store the result
-        submission_df.loc[image_id] = bbox
+    # add a progress bar using tqdm without spamming the log
+    update_iters = min(100, int(submission_format_df.shape[0] / 10))
+    with open(os.devnull, "w") as devnull:
+        progress_bar = tqdm(
+            enumerate(submission_format_df.index.values),
+            total=submission_format_df.shape[0],
+            miniters=update_iters,
+            file=devnull,
+        )
+        # generate predictions for each image
+        for i, image_id in progress_bar:
+            if (i % update_iters) == 0:
+                logger.info(str(progress_bar))
+            # load the image
+            img = cv2.imread(str(images_dir / f"{image_id}.png"))
+            # get yolo result
+            result = model(img, verbose=False)[0]
+            # get bbox coordinates if they exist, otherwise just get a generic box in center of an image
+            bbox = result.boxes.xyxy[0].tolist() if len(result.boxes) > 0 else centered_box(img)
+            # convert bbox values to integers
+            bbox = [int(x) for x in bbox]
+            # store the result
+            submission_df.loc[image_id] = bbox
     # write the submission to the submission output path
     submission_df.to_csv(output_path, index=True)
 
