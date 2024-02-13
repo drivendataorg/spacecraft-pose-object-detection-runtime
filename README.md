@@ -26,6 +26,7 @@ This repository has three primary uses for competitors:
  - [Download the data](#download-the-data)
  - [The quickstart example](#the-quickstart-example)
  - [Testing the submission](#testing-the-submission)
+ - [Evaluating locally](#evaluating-locally)
 ### [Developing your own submission](#developing-your-own-submission)
  - [Steps](#steps)
  - [Logging](#logging)
@@ -115,6 +116,40 @@ make test-submission
 
 If you were ready to make a real submission to the competition, you would upload the `submission.zip` file from step 2 above to the competition [Submissions page](https://www.drivendata.org/competitions/260/spacecraft-detection/submissions/). Once submitted, our code execution platform would then run your submission, and generate a new `submission.csv` on the unseen test set that will get **scored** automatically using the [competition scoring metric](https://www.drivendata.org/competitions/260/spacecraft-detection/page/833/#performance-metric) to determine your rank on the leaderboard.
 
+### Evaluating locally
+
+In your local model development and cross validation, you may wish to use the same scoring
+metric that will be employed when your real submissions are scored. We have included a script
+that implements the same logic at `scripts/score.py`.
+
+The usage is:
+
+```
+❯ python scripts/score.py --help
+usage: score.py [-h] predicted_path actual_path
+
+Calculates the Jaccard index score for the Pose Bowl: Spacecraft Detection and Pose Estimation Challenge. Args: predicted_path (str | Path): Path to predictions CSV file matching submission format
+actual_path (str | Path): Path to ground truth CSV file Returns: Dict[str, float]: Jaccard index score
+
+positional arguments:
+  predicted_path  Path to predictions CSV.
+  actual_path     Path to ground truth CSV.
+
+options:
+  -h, --help      show this help message and exit
+```
+
+For example, using the `submission_format.py` as the predictions with our training labels as the
+ground truth, we can verify that we achieve a (bad!) score:
+
+```
+❯ python scripts/score.py data/submission_format.csv data/train_labels.csv 
+{
+  "score": 0.0
+}
+```
+
+
 ----
 
 ## Developing your own submission
@@ -174,13 +209,9 @@ When you run `make test-submission` the logs will be printed to the terminal and
 
 ### Runtime network access
 
-In the real competition runtime, all internet access is blocked. The local test runtime does not impose the same network restrictions. It's up to you to make sure that your code doesn't make requests to any web resources.
+All internet access is blocked in the runtime environment. This means that you will need to package any required resources into your `submission.zip`. 
 
-You can test your submission _without_ internet access by running `BLOCK_INTERNET=true make test-submission`.
-
-### Downloading pre-trained weights
-
-It is common for models to download pre-trained weights from the internet. Since submissions do not have open access to the internet, you will need to include all weights along with your `submission.zip` and make sure that your code loads them from disk and rather than the internet.
+For example, it is common for models to download pre-trained weights. Since submissions do not have internet access, you will need to include all weights along with your `submission.zip` and make sure that your code loads them from disk and rather than the internet.
 
 
 ### Updating runtime packages
