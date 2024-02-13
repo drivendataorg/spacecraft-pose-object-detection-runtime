@@ -174,13 +174,9 @@ When you run `make test-submission` the logs will be printed to the terminal and
 
 ### Runtime network access
 
-In the real competition runtime, all internet access is blocked. The local test runtime does not impose the same network restrictions. It's up to you to make sure that your code doesn't make requests to any web resources.
+All internet access is blocked in the runtime environment. This means that you will need to package any required resources into your `submission.zip`. 
 
-You can test your submission _without_ internet access by running `BLOCK_INTERNET=true make test-submission`.
-
-### Downloading pre-trained weights
-
-It is common for models to download pre-trained weights from the internet. Since submissions do not have open access to the internet, you will need to include all weights along with your `submission.zip` and make sure that your code loads them from disk and rather than the internet.
+For example, it is common for models to download pre-trained weights. Since submissions do not have internet access, you will need to include all weights along with your `submission.zip` and make sure that your code loads them from disk and rather than the internet.
 
 
 ### Updating runtime packages
