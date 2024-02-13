@@ -17,13 +17,6 @@ ifneq (true, ${GITHUB_ACTIONS_NO_TTY})
 TTY_ARGS = -it
 endif
 
-# option to block or allow internet access from the submission Docker container
-# read BLOCK_INTERNET from environment variable if exists or default to "true"
-BLOCK_INTERNET ?= true
-ifeq (true, ${BLOCK_INTERNET})
-NETWORK_ARGS = --network none
-endif
-
 # To run a submission, use local version if that exists; otherwise, use official version
 # setting SUBMISSION_IMAGE as an environment variable will override the image
 SUBMISSION_IMAGE ?= $(shell docker images -q ${LOCAL_IMAGE})
@@ -99,7 +92,8 @@ ifeq (,$(wildcard ./submission/submission.zip))
 	  If you want to use the benchmark, you can run `make pack-benchmark` first)
 endif
 	docker run \
-		${TTY_ARGS} ${NETWORK_ARGS} \
+		${TTY_ARGS} \
+		--network none \
 		--mount type=bind,source="$(shell pwd)"/data,target=/code_execution/data,readonly \
 		--mount type=bind,source="$(shell pwd)"/submission,target=/code_execution/submission \
 		--shm-size 8g \
