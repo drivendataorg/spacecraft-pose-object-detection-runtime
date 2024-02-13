@@ -26,6 +26,7 @@ This repository has three primary uses for competitors:
  - [Download the data](#download-the-data)
  - [The quickstart example](#the-quickstart-example)
  - [Testing the submission](#testing-the-submission)
+ - [Evaluating locally](#evaluating-locally)
 ### [Developing your own submission](#developing-your-own-submission)
  - [Steps](#steps)
  - [Logging](#logging)
@@ -114,6 +115,40 @@ make test-submission
 🎉 **Congratulations!** You've just tested a submission for the Pose Bowl challenge. If everything worked as expected, you should see a new file has been generated at `submission/submission.csv`.
 
 If you were ready to make a real submission to the competition, you would upload the `submission.zip` file from step 2 above to the competition [Submissions page](https://www.drivendata.org/competitions/260/spacecraft-detection/submissions/). Once submitted, our code execution platform would then run your submission, and generate a new `submission.csv` on the unseen test set that will get **scored** automatically using the [competition scoring metric](https://www.drivendata.org/competitions/260/spacecraft-detection/page/833/#performance-metric) to determine your rank on the leaderboard.
+
+### Evaluating locally
+
+In your local model development and cross validation, you may wish to use the same scoring
+metric that will be employed when your real submissions are scored. We have included a script
+that implements the same logic at `scripts/score.py`.
+
+The usage is:
+
+```
+❯ python scripts/score.py --help
+usage: score.py [-h] predicted_path actual_path
+
+Calculates the Jaccard index score for the Pose Bowl: Spacecraft Detection and Pose Estimation Challenge. Args: predicted_path (str | Path): Path to predictions CSV file matching submission format
+actual_path (str | Path): Path to ground truth CSV file Returns: Dict[str, float]: Jaccard index score
+
+positional arguments:
+  predicted_path  Path to predictions CSV.
+  actual_path     Path to ground truth CSV.
+
+options:
+  -h, --help      show this help message and exit
+```
+
+For example, using the `submission_format.py` as the predictions with our training labels as the
+ground truth, we can verify that we achieve a (bad!) score:
+
+```
+❯ python scripts/score.py data/submission_format.csv data/train_labels.csv 
+{
+  "score": 0.0
+}
+```
+
 
 ----
 
