@@ -7,7 +7,7 @@ TAG = latest
 LOCAL_TAG = local
 
 TASK = object-detection
-REPO = spacecraft-pose-${TASK}-runtime
+REPO = spacecraft-pose-${TASK}
 REGISTRY_IMAGE = spacecraftpose.azurecr.io/${REPO}:${TAG}
 LOCAL_IMAGE = ${REPO}:${LOCAL_TAG}
 CONTAINER_NAME = spacecraft-pose-${TASK}
@@ -70,6 +70,15 @@ ifneq (,$(wildcard ./submission/submission.zip))
 endif
 	mkdir -p submission/
 	cd example_src; zip -r ../submission/submission.zip ./*
+
+## Creates a submission/submission.zip file from the source code in example_benchmark
+pack-benchmark:
+# Don't overwrite so no work is lost accidentally
+ifneq (,$(wildcard ./submission/submission.zip))
+	$(error You already have a submission/submission.zip file. Rename or remove that file (e.g., rm submission/submission.zip).)
+endif
+	mkdir -p submission/
+	cd example_benchmark; zip -r ../submission/submission.zip ./*
 
 ## Creates a submission/submission.zip file from the source code in submission_src
 pack-submission:
