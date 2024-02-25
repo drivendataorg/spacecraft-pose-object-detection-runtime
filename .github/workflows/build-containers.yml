@@ -17,7 +17,7 @@ jobs:
     name: Build, Test, and Publish Image
     runs-on: ubuntu-latest
     env:
-      LOGIN_SERVER: ${{ secrets.LOGIN_SERVER }}
+      LOGIN_SERVER: spacecraftpose.azurecr.io
       IMAGE: spacecraft-pose-object-detection
       SHA_TAG: ${{ github.sha }}
       LATEST_TAG: latest
