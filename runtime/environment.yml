@@ -34,5 +34,3 @@ dependencies:
   - openvino=2023.3.0
   - openvino-telemetry=2023.2.1
   - libopenvino-python=2023.3.0
-  - libopenvino-tensorflow-frontend=2023.3.0
-  - libprotobuf=4.25.1
