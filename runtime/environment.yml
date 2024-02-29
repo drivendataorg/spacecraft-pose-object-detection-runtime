@@ -31,3 +31,5 @@ dependencies:
   - ultralytics=8.1.11
   - tqdm=4.66.2
   - xgboost=2.0.3
+  - openvino=2023.3.0
+  - openvino-telemetry=2023.2.1
