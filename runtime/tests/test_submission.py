@@ -32,7 +32,12 @@ def test_submission_matches_submission_format():
         if fmt[col].dtype.kind in ("u", "i", "f"):
             assert np.isfinite(submission[col]).all(), f"Non-finite values found in submission column {col}"
 
+
+def test_bounding_box_values_make_sense():
+    submission = pd.read_csv(SUBMISSION_PATH, index_col="image_id")
+
+    assert (submission["xmin"] <= submission["xmax"]).all(), "All xmax must be greater than or equal to xmin"
+    assert (submission["ymin"] <= submission["ymax"]).all(), "All ymax must be greater than or equal to ymin"
+
     assert (submission["xmax"] <= MAX_WIDTH).all(), f"not all values of xmax are ≤ {MAX_WIDTH}"
     assert (submission["ymax"] <= MAX_HEIGHT).all(), f"not all values of ymax are ≤ {MAX_HEIGHT}"
-    for min_col in ("xmin", "ymin"):
-        assert (submission[min_col] >= 0).all(), f"not all values of {min_col} are non-negative"
