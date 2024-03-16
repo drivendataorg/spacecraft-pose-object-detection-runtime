@@ -32,3 +32,4 @@ dependencies:
   - ultralytics=8.1.11
   - tqdm=4.66.2
   - xgboost=2.0.3
+  - ncnn=1.0.20240102
