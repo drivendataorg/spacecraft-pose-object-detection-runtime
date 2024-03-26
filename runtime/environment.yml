@@ -29,6 +29,7 @@ dependencies:
   - tensorflow=2.15.0
   - dill=0.3.5.1
   - torchvision=0.16.1
-  - ultralytics=8.1.11
+  - ultralytics=8.1.34
+  - onnxruntime=1.17.1
   - tqdm=4.66.2
   - xgboost=2.0.3
