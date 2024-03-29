@@ -31,5 +31,6 @@ dependencies:
   - torchvision=0.16.1
   - ultralytics=8.1.34
   - onnxruntime=1.17.1
+  - onnx=1.15.0 
   - tqdm=4.66.2
   - xgboost=2.0.3
