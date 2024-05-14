@@ -5,3 +5,5 @@ wget
 zip
 parallel
 libgl1-mesa-glx
+cmake
+g++
